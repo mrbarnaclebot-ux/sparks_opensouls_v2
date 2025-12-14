@@ -56,10 +56,12 @@ services:
     healthCheckPath: /
     numInstances: 1
     envVars:
-      # WebSocket URL - Set manually after backend deploys
-      # Format: wss://your-soul-engine-cloud-url.onrender.com
+      # WebSocket URL - automatically references the backend service
       - key: NEXT_PUBLIC_HOCUS_POCUS_HOST
-        sync: false
+        fromService:
+          name: soul-engine-cloud
+          type: web
+          property: hostWSS
       # Soul Configuration
       - key: NEXT_PUBLIC_ORGANIZATION_SLUG
         value: local

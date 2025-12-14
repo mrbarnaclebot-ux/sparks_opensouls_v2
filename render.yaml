@@ -56,7 +56,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: NEXT_PUBLIC_HOCUS_POCUS_HOST
-        value: https://soul-engine-cloud.onrender.com
+        sync: false
       - key: NEXT_PUBLIC_ORGANIZATION_SLUG
         value: local
       - key: NEXT_PUBLIC_SUBROUTINE_ID

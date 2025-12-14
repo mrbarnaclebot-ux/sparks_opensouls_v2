@@ -1,3 +1,4 @@
+# Dockerfile for Soul Engine Cloud Backend (build from repository root)
 # Use official Bun image
 FROM oven/bun:1.2 AS base
 WORKDIR /monorepo
@@ -7,15 +8,8 @@ FROM base AS deps
 # Copy root workspace files
 COPY package.json bun.lockb ./
 
-# Copy all workspace package.json files
-COPY packages/soul-engine-cloud/package.json ./packages/soul-engine-cloud/
-COPY packages/engine/package.json ./packages/engine/
-COPY packages/core/package.json ./packages/core/
-COPY packages/soul/package.json ./packages/soul/
-COPY packages/pipeline/package.json ./packages/pipeline/
-
-# Copy frozen npm packages
-COPY packages/soul-engine-cloud/frozen-npm ./packages/soul-engine-cloud/frozen-npm
+# Copy all workspace packages (needed for workspace dependency resolution)
+COPY packages ./packages
 
 # Install all dependencies
 RUN bun install --frozen-lockfile

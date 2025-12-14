@@ -20,7 +20,7 @@ COPY packages/cli/package.json ./packages/cli/
 COPY packages/react/package.json ./packages/react/
 
 # Install all dependencies
-RUN bun install
+RUN bun install --frozen-lockfile
 
 # Build stage
 FROM base AS builder

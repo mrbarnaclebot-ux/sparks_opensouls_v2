@@ -6,9 +6,8 @@ cmds = ['bun install']
 
 [phases.build]
 cmds = [
-  'cd packages/soul-engine-cloud && bun install',
   'cd packages/soul-engine-cloud && bun run prisma:generate'
 ]
 
 [start]
-cmd = 'cd packages/soul-engine-cloud && bun ./scripts/run-server.ts'
+cmd = 'bun run dev:cloud'

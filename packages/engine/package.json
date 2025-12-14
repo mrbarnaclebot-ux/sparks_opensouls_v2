@@ -18,6 +18,7 @@
     }
   },
   "scripts": {
+    "build": "echo 'Build skipped - Bun runs TypeScript directly'",
     "test": "bun test"
   },
   "files": [

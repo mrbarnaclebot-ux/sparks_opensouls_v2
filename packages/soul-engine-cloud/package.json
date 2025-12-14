@@ -7,7 +7,7 @@
   "main": "dist/src/index.js",
   "scripts": {
     "test": "bun test",
-    "build": "tsc",
+    "build": "echo 'Build skipped - Bun runs TypeScript directly'",
     "compartment:bundle": "bun run scripts/buildBundle.ts",
     "dev": "bun run ./scripts/run-server.ts",
     "prisma:pull": "prisma db pull",

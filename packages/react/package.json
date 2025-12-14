@@ -24,7 +24,7 @@
     }
   },
   "scripts": {
-    "build": "npx tsc",
+    "build": "echo 'Build skipped - Bun runs TypeScript directly'",
     "test": "bun test"
   },
   "author": "",

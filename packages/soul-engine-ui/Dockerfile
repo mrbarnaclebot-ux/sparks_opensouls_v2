@@ -1,5 +1,5 @@
 # Use official Bun image
-FROM oven/bun:1.2 AS base
+FROM oven/bun:1.3 AS base
 WORKDIR /app
 
 # Install dependencies for monorepo

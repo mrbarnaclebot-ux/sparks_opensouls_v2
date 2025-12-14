@@ -54,10 +54,7 @@ services:
         sync: false
       # This sets the public URL for the backend service itself
       - key: VITE_SOUL_ENGINE_API_URL
-        fromService:
-          type: web
-          name: soul-engine-cloud
-          property: url
+        value: https://soul-engine-cloud.onrender.com
 
   # 4. Frontend Service: Soul Engine UI
   # This is the Next.js web interface for chatting with the soul.
@@ -82,12 +79,9 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      # IMPORTANT: This automatically points the UI to your deployed backend.
-      - key: NEXT_PUBLIC_SOUL_ENGINE_HOST
-        fromService:
-          type: web
-          name: soul-engine-cloud
-          property: url
+      # IMPORTANT: This points the UI to your deployed backend WebSocket endpoint.
+      - key: NEXT_PUBLIC_HOCUS_POCUS_HOST
+        value: wss://soul-engine-cloud.onrender.com
       - key: NEXT_PUBLIC_ORGANIZATION_SLUG
         value: local
       - key: NEXT_PUBLIC_SOUL_ID

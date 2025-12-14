@@ -11,8 +11,8 @@ services:
     runtime: docker
     region: oregon # Change to: oregon, ohio, frankfurt, singapore
     plan: starter # Options: free, starter ($7), standard ($25), pro ($85)
-    # Note: No rootDir - Dockerfile builds from monorepo root for workspace deps
-    dockerfilePath: packages/soul-engine-cloud/Dockerfile
+    rootDir: packages/soul-engine-cloud
+    dockerfilePath: ./Dockerfile
     healthCheckPath: /
     numInstances: 1
     envVars:

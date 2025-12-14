@@ -1,47 +1,17 @@
 # Use official Bun image
 FROM oven/bun:1.2 AS base
-WORKDIR /monorepo
+WORKDIR /app
 
-# Install dependencies for monorepo
+# Install dependencies
 FROM base AS deps
-WORKDIR /monorepo
-
-# Copy root package files
 COPY package.json bun.lockb ./
-
-# Copy workspace package.json files for dependency resolution
-COPY packages/soul-engine-cloud/package.json ./packages/soul-engine-cloud/
-COPY packages/soul-engine-cloud/frozen-npm ./packages/soul-engine-cloud/frozen-npm
-COPY packages/core/package.json ./packages/core/
-COPY packages/engine/package.json ./packages/engine/
-COPY packages/soul/package.json ./packages/soul/
-COPY packages/pipeline/package.json ./packages/pipeline/
-
-# Install all dependencies
+COPY frozen-npm ./frozen-npm
 RUN bun install --frozen-lockfile
 
 # Build stage
 FROM base AS builder
-WORKDIR /monorepo
-
-COPY --from=deps /monorepo/node_modules ./node_modules
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Build workspace dependencies first
-WORKDIR /monorepo/packages/core
-RUN bun run build || true
-
-WORKDIR /monorepo/packages/engine
-RUN bun run build || true
-
-WORKDIR /monorepo/packages/soul
-RUN bun run build || true
-
-WORKDIR /monorepo/packages/pipeline
-RUN bun run build || true
-
-# Build soul-engine-cloud
-WORKDIR /monorepo/packages/soul-engine-cloud
 RUN bun run prisma:generate
 RUN bun run build
 
@@ -52,18 +22,15 @@ WORKDIR /app
 # Create data directories for persistent storage
 RUN mkdir -p /app/data/pglite /app/data/code
 
-# Copy built application from monorepo
-COPY --from=builder /monorepo/packages/soul-engine-cloud/node_modules ./node_modules
-COPY --from=builder /monorepo/packages/soul-engine-cloud/dist ./dist
-COPY --from=builder /monorepo/packages/soul-engine-cloud/prisma ./prisma
-COPY --from=builder /monorepo/packages/soul-engine-cloud/package.json ./
-COPY --from=builder /monorepo/packages/soul-engine-cloud/scripts ./scripts
-COPY --from=builder /monorepo/packages/soul-engine-cloud/frozen-npm ./frozen-npm
-COPY --from=builder /monorepo/packages/soul-engine-cloud/data ./data
-COPY --from=builder /monorepo/packages/soul-engine-cloud/soul-engine-bundle ./soul-engine-bundle
-
-# Copy workspace dependencies that are needed at runtime
-COPY --from=builder /monorepo/node_modules/@opensouls ./node_modules/@opensouls
+# Copy built application
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/scripts ./scripts
+COPY --from=builder /app/frozen-npm ./frozen-npm
+COPY --from=builder /app/data ./data
+COPY --from=builder /app/soul-engine-bundle ./soul-engine-bundle
 
 # Set environment variables
 ENV NODE_ENV=production

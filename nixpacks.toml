@@ -1,18 +1,14 @@
 [phases.setup]
-nixPkgs = ['...', 'openssl']
+nixPkgs = ['nodejs_22', 'bun', 'openssl']
 
 [phases.install]
-cmds = ['bun install --frozen-lockfile']
+cmds = ['bun install']
 
 [phases.build]
 cmds = [
-  'cd packages/core && bun run build || true',
-  'cd packages/engine && bun run build || true',
-  'cd packages/soul && bun run build || true',
-  'cd packages/pipeline && bun run build || true',
-  'cd packages/soul-engine-cloud && bun run prisma:generate',
-  'cd packages/soul-engine-cloud && bun run build'
+  'cd packages/soul-engine-cloud && bun install',
+  'cd packages/soul-engine-cloud && bun run prisma:generate'
 ]
 
 [start]
-cmd = 'cd packages/soul-engine-cloud && bun run ./scripts/run-server.ts'
+cmd = 'cd packages/soul-engine-cloud && bun ./scripts/run-server.ts'

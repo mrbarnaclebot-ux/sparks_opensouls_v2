@@ -19,6 +19,7 @@
   "author": "",
   "license": "UNLICENSED",
   "dependencies": {
+    "uuid": "^9.0.1",
     "@aws-lite/client": "^0.22.4",
     "@aws-lite/s3": "^0.2.6",
     "@electric-sql/pglite": "^0.3.14",

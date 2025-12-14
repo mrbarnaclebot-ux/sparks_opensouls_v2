@@ -29,33 +29,45 @@ WORKDIR /monorepo
 COPY --from=deps /monorepo/node_modules ./node_modules
 COPY . .
 
-# Generate Prisma client
+# Build workspace dependencies first
+WORKDIR /monorepo/packages/core
+RUN bun run build || true
+
+WORKDIR /monorepo/packages/engine
+RUN bun run build || true
+
+WORKDIR /monorepo/packages/soul
+RUN bun run build || true
+
+WORKDIR /monorepo/packages/pipeline
+RUN bun run build || true
+
+# Build soul-engine-cloud
 WORKDIR /monorepo/packages/soul-engine-cloud
 RUN bun run prisma:generate
+# Note: Bun runs TypeScript directly, no build needed
 
-# Production stage - Keep monorepo structure for workspace dependencies
+# Production stage
 FROM base AS runner
-WORKDIR /monorepo
+WORKDIR /app
 
 # Create data directories for persistent storage
-RUN mkdir -p /monorepo/packages/soul-engine-cloud/data/pglite /monorepo/packages/soul-engine-cloud/data/code
+RUN mkdir -p /app/data/pglite /app/data/code
 
-# Copy entire monorepo structure (needed for workspace deps)
+# Copy application from monorepo (Bun runs TS directly)
 COPY --from=builder /monorepo/node_modules ./node_modules
-COPY --from=builder /monorepo/package.json ./package.json
-COPY --from=builder /monorepo/packages/core ./packages/core
-COPY --from=builder /monorepo/packages/engine ./packages/engine
-COPY --from=builder /monorepo/packages/soul ./packages/soul
-COPY --from=builder /monorepo/packages/pipeline ./packages/pipeline
-COPY --from=builder /monorepo/packages/soul-engine-cloud ./packages/soul-engine-cloud
+COPY --from=builder /monorepo/packages/soul-engine-cloud/src ./src
+COPY --from=builder /monorepo/packages/soul-engine-cloud/prisma ./prisma
+COPY --from=builder /monorepo/packages/soul-engine-cloud/package.json ./
+COPY --from=builder /monorepo/packages/soul-engine-cloud/scripts ./scripts
+COPY --from=builder /monorepo/packages/soul-engine-cloud/frozen-npm ./frozen-npm
+COPY --from=builder /monorepo/packages/soul-engine-cloud/soul-engine-bundle ./soul-engine-bundle
 
 # Set environment variables
 ENV NODE_ENV=production
 ENV PORT=4000
-ENV CODE_PATH=/monorepo/packages/soul-engine-cloud/data/code
-ENV PGLITE_DATA_DIR=/monorepo/packages/soul-engine-cloud/data/pglite
-
-WORKDIR /monorepo/packages/soul-engine-cloud
+ENV CODE_PATH=/app/data/code
+ENV PGLITE_DATA_DIR=/app/data/pglite
 
 EXPOSE 4000
 

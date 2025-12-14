@@ -45,7 +45,7 @@ RUN bun run build || true
 # Build soul-engine-cloud
 WORKDIR /monorepo/packages/soul-engine-cloud
 RUN bun run prisma:generate
-RUN bun run build
+# Note: Bun runs TypeScript directly, no build needed
 
 # Production stage
 FROM base AS runner
@@ -54,9 +54,9 @@ WORKDIR /app
 # Create data directories for persistent storage
 RUN mkdir -p /app/data/pglite /app/data/code
 
-# Copy built application from monorepo
+# Copy application from monorepo (Bun runs TS directly)
 COPY --from=builder /monorepo/packages/soul-engine-cloud/node_modules ./node_modules
-COPY --from=builder /monorepo/packages/soul-engine-cloud/dist ./dist
+COPY --from=builder /monorepo/packages/soul-engine-cloud/src ./src
 COPY --from=builder /monorepo/packages/soul-engine-cloud/prisma ./prisma
 COPY --from=builder /monorepo/packages/soul-engine-cloud/package.json ./
 COPY --from=builder /monorepo/packages/soul-engine-cloud/scripts ./scripts

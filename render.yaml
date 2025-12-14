@@ -1,0 +1,64 @@
+# Render Blueprint for SPARK Terminal with Backend
+# Deploy without Docker - uses Node.js native runtime
+
+services:
+  - type: web
+    name: soul-engine-cloud
+    runtime: node
+    region: oregon
+    plan: starter
+    rootDir: packages/soul-engine-cloud
+    buildCommand: |
+      npm install -g bun &&
+      cd ../.. &&
+      bun install &&
+      cd packages/soul-engine-cloud &&
+      bun run prisma:generate &&
+      bun run build
+    startCommand: npm run dev
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: PORT
+        value: 4000
+      - key: DEBUG_SERVER_PORT
+        value: 4000
+      - key: PGLITE_DATA_DIR
+        value: /app/data/pglite
+      - key: LOCAL_ORG_ID
+        value: 00000000-0000-0000-0000-000000000000
+      - key: ENABLE_PRISMA_QUERY_LOGS
+        value: true
+      - key: PGLITE_SKIP_BOOTSTRAP
+        value: true
+    healthCheckPath: /
+
+  - type: web
+    name: spark-terminal-ui
+    runtime: node
+    region: oregon
+    plan: free
+    rootDir: packages/soul-engine-ui
+    buildCommand: |
+      npm install -g bun &&
+      cd ../.. &&
+      bun install &&
+      cd packages/core && bun run build &&
+      cd ../engine && bun run build &&
+      cd ../soul && bun run build &&
+      cd ../react && bun run build &&
+      cd ../soul-engine-ui &&
+      bun run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_HOCUS_POCUS_HOST
+        sync: false
+      - key: NEXT_PUBLIC_ORGANIZATION_SLUG
+        value: local
+      - key: NEXT_PUBLIC_SUBROUTINE_ID
+        value: SPARK
+    healthCheckPath: /spark

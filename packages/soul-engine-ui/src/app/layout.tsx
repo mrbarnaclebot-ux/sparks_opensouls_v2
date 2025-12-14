@@ -5,8 +5,8 @@ import { Theme } from "@radix-ui/themes";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Spark Terminal",
-  description: "Talk to Spark - AI Soul Terminal",
+  title: "Soul Engine",
+  description: "Creating AI souls.",
 };
 
 export default function RootLayout({
@@ -15,12 +15,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="light-theme light" style={{ colorScheme: "light" }}>
+    <html lang="en" className="dark-theme dark" style={{ colorScheme: "dark" }}>
       <link rel="icon" href="/icon.png" sizes="any" />
       <body>
         <Theme
-          appearance="light"
-          accentColor="gray"
+          appearance="dark"
+          accentColor="iris"
           grayColor="slate"
           panelBackground="solid"
           radius="small"

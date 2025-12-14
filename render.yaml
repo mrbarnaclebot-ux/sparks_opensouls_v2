@@ -1,6 +1,14 @@
 # Render Blueprint for SPARK Terminal UI
 # Deploy without Docker - uses Node.js native runtime
 
+databases:
+  # PostgreSQL Database for data persistence
+  - name: soul-engine-db
+    databaseName: soul_engine_db
+    user: soul_engine_user
+    region: oregon
+    plan: free
+
 services:
   # 1. Redis Instance for caching and messaging
   - type: redis
@@ -8,12 +16,6 @@ services:
     region: oregon # Or your preferred region
     plan: free
     ipAllowList: [] # Allow all connections
-
-  # 2. PostgreSQL Database
-  - type: postgres
-    name: soul-engine-db
-    region: oregon # Or your preferred region
-    plan: free
 
   # 3. Backend Service: Soul Engine Cloud
   # This service runs the main AI and WebSocket logic.
@@ -39,8 +41,7 @@ services:
     startCommand: "bun run start"
     envVars:
       - key: DATABASE_URL
-        fromService:
-          type: postgres
+        fromDatabase:
           name: soul-engine-db
           property: connectionString
       - key: REDIS_URL

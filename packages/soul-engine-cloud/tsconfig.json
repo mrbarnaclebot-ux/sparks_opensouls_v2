@@ -16,6 +16,6 @@
     "allowImportingTsExtensions": true,
     "emitDeclarationOnly": true,
   },
-  "include": ["src/**/*", "scripts/**/*"],
-  "exclude": ["node_modules", "tests", "examples"]
+  "include": ["src/**/*", "tests/**/*", "scripts/**/*", "examples/**/*"],
+  "exclude": ["node_modules"]
 }

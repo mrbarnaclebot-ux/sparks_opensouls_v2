@@ -1,92 +1,96 @@
-# Deploy SPARK Terminal UI to Render (Without Docker)
+# Deploy SPARK Terminal to Render (Without Docker)
 
 ## Prerequisites
 
 - A Render account (https://render.com)
 - Your repo pushed to GitHub/GitLab
+- OpenAI API key
 
-## Option 1: Manual Deployment (Recommended)
+## Quick Deploy with Blueprint
 
-### Step 1: Create a New Web Service on Render
+1. **Push to GitHub:**
 
-1. Go to https://dashboard.render.com
-2. Click **"New +"** → **"Web Service"**
-3. Connect your GitHub repository
-4. Configure the service:
+   ```bash
+   git add render.yaml
+   git commit -m "Add Render deployment configuration"
+   git push
+   ```
 
-| Setting            | Value                     |
-| ------------------ | ------------------------- |
-| **Name**           | `spark-terminal-ui`       |
-| **Region**         | Oregon (or closest)       |
-| **Branch**         | `main`                    |
-| **Root Directory** | `packages/soul-engine-ui` |
-| **Runtime**        | `Node`                    |
-| **Build Command**  | See below                 |
-| **Start Command**  | `npm run start`           |
-| **Plan**           | Free                      |
+2. **Deploy on Render:**
 
-### Build Command (copy this):
+   - Go to https://dashboard.render.com
+   - Click **"New +"** → **"Blueprint"**
+   - Connect your GitHub repository
+   - Render will detect `render.yaml` in the root
+   - Review and click **"Apply"**
+
+3. **Set Environment Variables:**
+   After creation, go to each service's Environment tab:
+
+   **For soul-engine-cloud:**
+   | Variable | Value |
+   |----------|-------|
+   | `OPENAI_API_KEY` | `sk-your-openai-api-key` |
+
+   **For spark-terminal-ui:**
+   | Variable | Value |
+   |----------|-------|
+   | `NEXT_PUBLIC_HOCUS_POCUS_HOST` | `wss://soul-engine-cloud.onrender.com` |
+
+## Services Deployed
+
+### 1. soul-engine-cloud (Backend)
+
+- **Runtime**: Node.js with Bun
+- **Port**: 4000
+- **Plan**: Starter ($7/month) - required for always-on WebSocket connections
+
+### 2. spark-terminal-ui (Frontend)
+
+- **Runtime**: Node.js/Next.js
+- **Plan**: Free
+
+## After Deployment
+
+1. Wait for both services to deploy (5-10 minutes)
+2. Get the backend URL from Render dashboard (e.g., `soul-engine-cloud.onrender.com`)
+3. Set `NEXT_PUBLIC_HOCUS_POCUS_HOST` in the UI service to `wss://[backend-url]`
+4. Access your SPARK Terminal at: `https://spark-terminal-ui.onrender.com/spark`
+
+## Important: Start the SPARK Soul
+
+The SPARK soul needs to be running and connected to the backend. You can either:
+
+### Option A: Run soul locally connecting to deployed backend
 
 ```bash
-npm install -g bun && cd ../.. && bun install && cd packages/soul-engine-ui && bun run build
+cd souls/SPARK
+SOUL_ENGINE_URL=wss://soul-engine-cloud.onrender.com bunx soul-engine dev
 ```
 
-### Step 2: Set Environment Variables
+### Option B: Deploy soul as a separate service
 
-In the Render dashboard, add these environment variables:
-
-| Variable                        | Value                                         |
-| ------------------------------- | --------------------------------------------- |
-| `NODE_ENV`                      | `production`                                  |
-| `NEXT_PUBLIC_HOCUS_POCUS_HOST`  | `wss://your-soul-engine-backend.onrender.com` |
-| `NEXT_PUBLIC_ORGANIZATION_SLUG` | `local`                                       |
-| `NEXT_PUBLIC_SUBROUTINE_ID`     | `SPARK`                                       |
-
-⚠️ **Important**: Replace `your-soul-engine-backend.onrender.com` with your actual soul-engine-cloud backend URL.
-
-### Step 3: Deploy
-
-Click **"Create Web Service"** and wait for the build to complete.
-
-## Option 2: Blueprint Deployment
-
-1. In Render dashboard, click **"New +"** → **"Blueprint"**
-2. Connect your repository
-3. Render will detect the `render.yaml` file in `packages/soul-engine-ui/`
-4. Review and deploy
-
-## Accessing Your Deployed App
-
-After deployment, your SPARK Terminal UI will be available at:
-
-```
-https://spark-terminal-ui.onrender.com/spark
-```
-
-## Deploying the Soul Engine Backend
-
-You'll also need to deploy the `soul-engine-cloud` backend separately. It requires:
-
-- PostgreSQL database
-- Redis instance
-- Environment variables for API keys
-
-The backend is more complex and may require the Docker deployment option on Render.
+Add another service in render.yaml for running the soul continuously.
 
 ## Troubleshooting
 
-### Build Fails with "workspace:\*" errors
+### Backend fails to start
 
-The monorepo workspace dependencies need the full repo to build. Make sure:
+- Check that `OPENAI_API_KEY` is set correctly
+- Ensure the plan is "Starter" or higher (Free plan sleeps and breaks WebSocket)
 
-- Root Directory is set to `packages/soul-engine-ui`
-- Build command starts from root: `cd ../..`
+### UI can't connect to backend
 
-### WebSocket Connection Fails
+- Verify `NEXT_PUBLIC_HOCUS_POCUS_HOST` uses `wss://` protocol
+- Check the backend URL is correct (no trailing slash)
 
-- Ensure `NEXT_PUBLIC_HOCUS_POCUS_HOST` uses `wss://` (not `ws://`) for production
-- Verify your backend is deployed and accessible
+### Build fails with TypeScript errors
 
-### Static Files Not Loading
+- The workspace packages need to be built first
+- Check the build command builds packages in order: core → engine → soul → react → soul-engine-ui
 
-Check that the build completed successfully and `next build` generated the `.next` folder.
+## Costs
+
+- **soul-engine-cloud**: ~$7/month (Starter plan required for persistent WebSocket)
+- **spark-terminal-ui**: Free
+- **OpenAI API**: Pay-per-use (~$0.01-0.03 per conversation turn with GPT-4)

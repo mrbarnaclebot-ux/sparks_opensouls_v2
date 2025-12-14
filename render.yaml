@@ -37,7 +37,8 @@ services:
       npm i -g bun
       cd ../..
       bun install --frozen-lockfile
-      bun run --filter soul-engine-cloud prisma:generate
+      cd packages/soul-engine-cloud
+      bun run prisma:generate
     startCommand: "bun run start"
     envVars:
       - key: DATABASE_URL
@@ -74,7 +75,8 @@ services:
       npm i -g bun
       cd ../..
       bun install --frozen-lockfile
-      bun run --filter soul-engine-ui build
+      cd packages/soul-engine-ui
+      bun run build
     startCommand: "bun run start"
     envVars:
       - key: NODE_ENV

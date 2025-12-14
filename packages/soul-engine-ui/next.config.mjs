@@ -1,13 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    // Ignore TypeScript errors during build (workspace packages have .ts imports)
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    // Ignore ESLint errors during build
-    ignoreDuringBuilds: true,
-  },
   async rewrites() {
     return [
       {

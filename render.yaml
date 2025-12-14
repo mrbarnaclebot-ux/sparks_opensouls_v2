@@ -7,21 +7,21 @@ services:
     runtime: node
     region: oregon
     plan: free
+    rootDir: packages/soul-engine-ui
     buildCommand: |
       npm install -g bun &&
       cd ../.. &&
       bun install &&
       cd packages/soul-engine-ui &&
       bun run build
-    startCommand: bun run start
+    startCommand: npm run start
     envVars:
       - key: NODE_ENV
         value: production
       - key: NEXT_PUBLIC_HOCUS_POCUS_HOST
-        sync: false # Set this to your soul-engine-cloud WebSocket URL
+        sync: false
       - key: NEXT_PUBLIC_ORGANIZATION_SLUG
         value: local
       - key: NEXT_PUBLIC_SUBROUTINE_ID
         value: SPARK
-    rootDir: packages/soul-engine-ui
     healthCheckPath: /spark

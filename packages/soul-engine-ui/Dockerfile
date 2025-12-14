@@ -16,7 +16,6 @@ COPY packages/engine/package.json ./packages/engine/
 COPY packages/react/package.json ./packages/react/
 COPY packages/soul/package.json ./packages/soul/
 COPY packages/pipeline/package.json ./packages/pipeline/
-COPY packages/cli/package.json ./packages/cli/
 
 # Install all dependencies
 RUN bun install --frozen-lockfile

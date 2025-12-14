@@ -55,17 +55,13 @@ WORKDIR /app
 RUN mkdir -p /app/data/pglite /app/data/code
 
 # Copy application from monorepo (Bun runs TS directly)
-COPY --from=builder /monorepo/packages/soul-engine-cloud/node_modules ./node_modules
+COPY --from=builder /monorepo/node_modules ./node_modules
 COPY --from=builder /monorepo/packages/soul-engine-cloud/src ./src
 COPY --from=builder /monorepo/packages/soul-engine-cloud/prisma ./prisma
 COPY --from=builder /monorepo/packages/soul-engine-cloud/package.json ./
 COPY --from=builder /monorepo/packages/soul-engine-cloud/scripts ./scripts
 COPY --from=builder /monorepo/packages/soul-engine-cloud/frozen-npm ./frozen-npm
-COPY --from=builder /monorepo/packages/soul-engine-cloud/data ./data
 COPY --from=builder /monorepo/packages/soul-engine-cloud/soul-engine-bundle ./soul-engine-bundle
-
-# Copy workspace dependencies that are needed at runtime
-COPY --from=builder /monorepo/node_modules/@opensouls ./node_modules/@opensouls
 
 # Set environment variables
 ENV NODE_ENV=production

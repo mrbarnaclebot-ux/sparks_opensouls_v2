@@ -1,6 +1,6 @@
 # Use official Bun image
 FROM oven/bun:1.3 AS base
-WORKDIR /app
+WORKDIR /monorepo
 
 # Install dependencies for monorepo
 FROM base AS deps
@@ -28,36 +28,30 @@ WORKDIR /monorepo
 COPY --from=deps /monorepo/node_modules ./node_modules
 COPY . .
 
-# Build workspace dependencies first
-WORKDIR /monorepo/packages/core
-RUN bun run build || true
-
-WORKDIR /monorepo/packages/engine  
-RUN bun run build || true
-
-WORKDIR /monorepo/packages/soul
-RUN bun run build || true
-
-WORKDIR /monorepo/packages/react
-RUN bun run build || true
-
-# Build the UI
+# Build the UI from monorepo root (Next.js needs workspace packages)
 WORKDIR /monorepo/packages/soul-engine-ui
 RUN bun run build
 
-# Production stage
+# Production stage - Keep monorepo structure for workspace dependencies
 FROM base AS runner
-WORKDIR /app
+WORKDIR /monorepo
 
 ENV NODE_ENV=production
 ENV PORT=3000
 
-# Copy built application
-COPY --from=builder /monorepo/packages/soul-engine-ui/.next ./.next
-COPY --from=builder /monorepo/packages/soul-engine-ui/public ./public
-COPY --from=builder /monorepo/packages/soul-engine-ui/package.json ./
-COPY --from=builder /monorepo/packages/soul-engine-ui/next.config.mjs ./
-COPY --from=builder /monorepo/packages/soul-engine-ui/node_modules ./node_modules
+# Copy entire monorepo structure (Next.js needs workspace deps at runtime)
+COPY --from=builder /monorepo/node_modules ./node_modules
+COPY --from=builder /monorepo/package.json ./package.json
+COPY --from=builder /monorepo/packages/core ./packages/core
+COPY --from=builder /monorepo/packages/engine ./packages/engine
+COPY --from=builder /monorepo/packages/soul ./packages/soul
+COPY --from=builder /monorepo/packages/react ./packages/react
+COPY --from=builder /monorepo/packages/soul-engine-ui/.next ./packages/soul-engine-ui/.next
+COPY --from=builder /monorepo/packages/soul-engine-ui/public ./packages/soul-engine-ui/public
+COPY --from=builder /monorepo/packages/soul-engine-ui/package.json ./packages/soul-engine-ui/package.json
+COPY --from=builder /monorepo/packages/soul-engine-ui/next.config.mjs ./packages/soul-engine-ui/next.config.mjs
+
+WORKDIR /monorepo/packages/soul-engine-ui
 
 EXPOSE 3000
 

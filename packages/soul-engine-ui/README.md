@@ -1,24 +1,123 @@
-# Soul Engine UI
+# Spark Terminal UI
 
-The interface for the Soul Engine chat debugger.
+A terminal-style chat interface for talking to Spark, the AI soul dog.
 
-## Hosted demos
+![Spark Terminal](./public/pixel-spark.png)
 
-Demos are hosted under https://souls.chat/s/demo-id using a reverse proxy to the actual demo. The demo code is usually store in the community repository.
+## Features
 
-### Configuring a new hosted demo
+- 🖥️ Terminal-style UI with white background and black elements
+- 🐕 Spark's pixel art avatar displayed above the chat
+- 🟢 Real-time connection status (ONLINE/OFFLINE/ERROR)
+- 💬 Chat with Spark using the Soul Engine
+- 🔄 Reset button to clear chat history
+- ⚠️ Error messages displayed as Spark speaking
+- 📱 Responsive design for mobile and desktop
 
-1. Add a new rewrite rule to `next.config.mjs` in this repository.
-2. Copy these files to your project folder in the community repository: [next.config.mjs](https://github.com/opensouls/community/blob/main/demos/nextjs/cranky/web/next.config.mjs) and [middleware.ts](https://github.com/opensouls/community/blob/main/demos/nextjs/cranky/web/app/middleware.ts).
-3. Deploy your project to Vercel, making sure you set the root directory to the correct folder in your project containing the Next.js app.
-4. Configure the following environment variables in Vercel (tip: you can paste this entire block there):
+## Quick Start (Local Development)
+
+### Prerequisites
+
+- [Bun](https://bun.sh/) installed
+- OpenAI API key
+
+### Step 1: Set up the Spark Soul
+
+```bash
+# Install dependencies
+bun install
+
+# Create environment file with your OpenAI API key
+bun run setup or echo "OPENAI_API_KEY=your-openai-api-key-here" > .env
+
+# Navigate to the Spark soul directory
+cd souls/SPARK
+
+
+# Start the Soul Engine
+bunx soul-engine dev
 ```
-NEXT_PUBLIC_ASSET_BASE_URL="https://souls.chat/s/opensouls/<your-project-id>"
-ASSET_PREFIX_FOR_PROXY="/s/opensouls/<your-project-id>/"
-CORS_RESTRICT_ORIGIN="https://souls.chat"
-NEXT_PUBLIC_SOUL_ENGINE_BLUEPRINT="blueprint id"
-NEXT_PUBLIC_SOUL_ENGINE_ORGANIZATION="organization id"
+
+Keep this terminal running.
+
+### Step 2: Start the UI
+
+Open a new terminal:
+
+```bash
+# Navigate to the UI directory
+cd packages/soul-engine-ui && bun run dev
+
 ```
-5. If you have images in your project, you might need to add a `getAssetPath` helper function like [this one](https://github.com/opensouls/community/blob/main/demos/nextjs/cranky/web/lib/assets.ts) and use that so the images are proxied correctly. If you see a bunch of 404s in the console, this is likely the issue.
-6. Make sure you have all the metadata properly configured in your project: favicon, title, description, og image.
-7. Make sure the ["Made with Soul Engine" badge](https://github.com/opensouls/community/blob/main/demos/nextjs/cranky/web/components/made-with-soul-engine.tsx) appears somewhere in the demo.
+
+### Step 3: Open in Browser
+
+Visit **http://localhost:3000** to chat with Spark!
+
+## Configuration
+
+Copy `.env.example` to `.env.local` and configure:
+
+```bash
+# WebSocket URL for Soul Engine backend
+NEXT_PUBLIC_HOCUS_POCUS_HOST=ws://localhost:4000
+
+# Organization slug (use "local" for local development)
+NEXT_PUBLIC_ORGANIZATION_SLUG=local
+
+# Soul subroutine ID
+NEXT_PUBLIC_SUBROUTINE_ID=SPARK
+```
+
+## Project Structure
+
+```
+packages/soul-engine-ui/
+├── public/
+│   ├── pixel-spark.png    # Spark's main avatar
+│   └── spark-icon.png     # Chat message avatar
+├── src/
+│   └── app/
+│       ├── page.tsx       # Main terminal UI component
+│       ├── globals.css    # Terminal styling
+│       └── layout.tsx     # App layout
+└── .env.example           # Environment configuration template
+```
+
+## Deployment
+
+### Vercel
+
+1. Push to GitHub
+2. Import project to Vercel
+3. Set root directory to `packages/soul-engine-ui`
+4. Add environment variables:
+   - `NEXT_PUBLIC_HOCUS_POCUS_HOST=wss://your-backend-url`
+   - `NEXT_PUBLIC_ORGANIZATION_SLUG=your-org`
+   - `NEXT_PUBLIC_SUBROUTINE_ID=SPARK`
+
+### Other Platforms
+
+```bash
+bun run build
+bun run start
+```
+
+## Troubleshooting
+
+### "Spark says he's offline"
+
+- Make sure the Soul Engine is running (`bunx soul-engine dev` in `souls/SPARK`)
+
+### "API key error"
+
+- Create `souls/SPARK/.env` with your `OPENAI_API_KEY`
+
+### "Connection error"
+
+- Check that both terminals are running
+- Verify the WebSocket URL in `.env.local`
+
+## Soul Engine Documentation
+
+For more information about creating AI souls, visit [docs.souls.chat](https://docs.souls.chat/)

@@ -19,7 +19,7 @@ COPY packages/pipeline/package.json ./packages/pipeline/
 COPY packages/cli/package.json ./packages/cli/
 
 # Install all dependencies
-RUN bun install --frozen-lockfile
+RUN bun install
 
 # Build stage
 FROM base AS builder

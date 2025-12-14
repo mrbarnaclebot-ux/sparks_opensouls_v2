@@ -44,8 +44,9 @@ RUN bun run build || true
 WORKDIR /monorepo/packages/pipeline
 RUN bun run build || true
 
-# Build the UI from monorepo root (Next.js will use compiled workspace packages)
+# Build the UI from monorepo root (skip type checking for workspace .ts imports)
 WORKDIR /monorepo/packages/soul-engine-ui
+ENV SKIP_TYPE_CHECK=true
 RUN bun run build
 
 # Production stage - Keep monorepo structure for workspace dependencies

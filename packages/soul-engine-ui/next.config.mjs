@@ -1,13 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    // Skip type checking during build since Bun packages use .ts extensions
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    // Skip ESLint during build for faster deployment
-    ignoreDuringBuilds: true,
-  },
   async rewrites() {
     return [
       {

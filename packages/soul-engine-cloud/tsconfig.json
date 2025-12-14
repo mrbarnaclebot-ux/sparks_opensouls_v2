@@ -5,7 +5,7 @@
     "module": "ES2020",
     "outDir": "./dist",
     "rootDir": ".",
-    "strict": false,
+    "strict": true,
     "esModuleInterop": true,
     "declaration": true,
     "types": ["bun-types", "node", "@aws-lite/s3-types"],
@@ -15,8 +15,7 @@
     "allowJs": true,
     "allowImportingTsExtensions": true,
     "emitDeclarationOnly": true,
-    "noEmitOnError": false
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "tests", "scripts", "examples"]
+  "include": ["src/**/*", "tests/**/*", "scripts/**/*", "examples/**/*"],
+  "exclude": ["node_modules"]
 }

@@ -28,23 +28,7 @@ WORKDIR /monorepo
 COPY --from=deps /monorepo/node_modules ./node_modules
 COPY . .
 
-# Build workspace dependencies first so Next.js uses compiled JS, not TS with .ts extensions
-WORKDIR /monorepo/packages/core
-RUN bun run build || true
-
-WORKDIR /monorepo/packages/engine
-RUN bun run build || true
-
-WORKDIR /monorepo/packages/soul
-RUN bun run build || true
-
-WORKDIR /monorepo/packages/react
-RUN bun run build || true
-
-WORKDIR /monorepo/packages/pipeline
-RUN bun run build || true
-
-# Build the UI from monorepo root (Next.js will use compiled workspace packages)
+# Build the UI from monorepo root (Next.js needs workspace packages)
 WORKDIR /monorepo/packages/soul-engine-ui
 RUN bun run build
 

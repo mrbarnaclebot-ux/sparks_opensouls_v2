@@ -2,26 +2,92 @@
 # Deploy without Docker - uses Node.js native runtime
 
 services:
+  # 1. Redis Instance for caching and messaging
+  - type: redis
+    name: soul-engine-redis
+    region: oregon # Or your preferred region
+    plan: free
+    ipAllowList: [] # Allow all connections
+
+  # 2. PostgreSQL Database
+  - type: psql
+    name: soul-engine-db
+    region: oregon # Or your preferred region
+    plan: free
+
+  # 3. Backend Service: Soul Engine Cloud
+  # This service runs the main AI and WebSocket logic.
+  # We use the "Starter" plan to get a more powerful build instance, which helps prevent timeouts.
   - type: web
-    name: spark-terminal-ui
-    runtime: node
+    name: soul-engine-cloud
+    env: node
+    region: oregon
+    plan: starter # 'starter' provides more resources for the build process
+    healthCheckPath: /health
+    rootDir: packages/soul-engine-cloud
+    buildFilter:
+      paths:
+      - "packages/soul-engine-cloud/**"
+      - "packages/core/**"
+      - "library/**"
+      - "bun.lockb"
+    buildCommand: |
+      npm i -g bun
+      cd ../..
+      bun install --frozen-lockfile
+      bun run --filter soul-engine-cloud prisma:generate
+    startCommand: "bun run start"
+    envVars:
+      - key: DATABASE_URL
+        fromService:
+          type: psql
+          name: soul-engine-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: soul-engine-redis
+          property: connectionString
+      # IMPORTANT: Set this secret in the Render Dashboard
+      - key: OPENAI_API_KEY
+        sync: false
+      # This sets the public URL for the backend service itself
+      - key: VITE_SOUL_ENGINE_API_URL
+        fromService:
+          type: web
+          name: soul-engine-cloud
+          property: url
+
+  # 4. Frontend Service: Soul Engine UI
+  # This is the Next.js web interface for chatting with the soul.
+  - type: web
+    name: soul-engine-ui
+    env: node
     region: oregon
     plan: free
     rootDir: packages/soul-engine-ui
+    buildFilter:
+      paths:
+      - "packages/soul-engine-ui/**"
+      - "packages/core/**"
+      - "library/**"
+      - "bun.lockb"
     buildCommand: |
-      npm install -g bun &&
-      cd ../.. &&
-      bun install &&
-      cd packages/soul-engine-ui &&
-      bun run build
-    startCommand: npm run start
+      npm i -g bun
+      cd ../..
+      bun install --frozen-lockfile
+      bun run --filter soul-engine-ui build
+    startCommand: "bun run start"
     envVars:
       - key: NODE_ENV
         value: production
-      - key: NEXT_PUBLIC_HOCUS_POCUS_HOST
-        sync: false
+      # IMPORTANT: This automatically points the UI to your deployed backend.
+      - key: NEXT_PUBLIC_SOUL_ENGINE_HOST
+        fromService:
+          type: web
+          name: soul-engine-cloud
+          property: url
       - key: NEXT_PUBLIC_ORGANIZATION_SLUG
         value: local
-      - key: NEXT_PUBLIC_SUBROUTINE_ID
+      - key: NEXT_PUBLIC_SOUL_ID
         value: SPARK
-    healthCheckPath: /spark

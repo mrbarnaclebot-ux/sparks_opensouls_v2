@@ -29,17 +29,22 @@ services:
     rootDir: packages/soul-engine-cloud
     buildFilter:
       paths:
-      - "packages/soul-engine-cloud/**"
-      - "packages/core/**"
-      - "library/**"
-      - "bun.lockb"
+        - 'packages/soul-engine-cloud/**'
+        - 'packages/core/**'
+        - 'packages/engine/**'
+        - 'packages/soul/**'
+        - 'library/**'
+        - 'souls/SPARK/**'
+        - 'bun.lockb'
     buildCommand: |
       npm i -g bun
       cd ../..
       bun install --frozen-lockfile
       cd packages/soul-engine-cloud
       bun run prisma:generate
-    startCommand: "bun run start"
+      export CODE_PATH=/opt/render/project/src/packages/soul-engine-cloud/data/code
+      bun run bundle:spark
+    startCommand: 'bun run start'
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -56,6 +61,9 @@ services:
       # This sets the public URL for the backend service itself
       - key: VITE_SOUL_ENGINE_API_URL
         value: https://soul-engine-cloud.onrender.com
+      # CODE_PATH for soul storage
+      - key: CODE_PATH
+        value: /opt/render/project/src/packages/soul-engine-cloud/data/code
 
   # 4. Frontend Service: Soul Engine UI
   # This is the Next.js web interface for chatting with the soul.
@@ -67,17 +75,17 @@ services:
     rootDir: packages/soul-engine-ui
     buildFilter:
       paths:
-      - "packages/soul-engine-ui/**"
-      - "packages/core/**"
-      - "library/**"
-      - "bun.lockb"
+        - 'packages/soul-engine-ui/**'
+        - 'packages/core/**'
+        - 'library/**'
+        - 'bun.lockb'
     buildCommand: |
       npm i -g bun
       cd ../..
       bun install --frozen-lockfile
       cd packages/soul-engine-ui
       bun run build
-    startCommand: "bun run start"
+    startCommand: 'bun run start'
     envVars:
       - key: NODE_ENV
         value: production

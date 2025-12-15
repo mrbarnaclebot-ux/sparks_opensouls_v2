@@ -11,9 +11,18 @@ RUN bun install --frozen-lockfile
 # Build stage
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+
+# Copy all necessary files from context (build context should be repo root)
+COPY packages/soul-engine-cloud ./
+COPY souls/SPARK /app/souls/SPARK
+
 RUN bun run prisma:generate
 RUN bun run build
+
+# Bundle SPARK soul
+ENV CODE_PATH=/app/data/code
+RUN mkdir -p /app/data/code
+RUN bun run bundle:spark
 
 # Production stage
 FROM base AS runner

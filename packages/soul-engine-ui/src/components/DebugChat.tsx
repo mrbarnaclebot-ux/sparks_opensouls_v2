@@ -13,6 +13,7 @@ import { PanelGroup, PanelResizeHandle, Panel as ResizablePanel } from "react-re
 import { v4 as uuidv4 } from "uuid";
 
 import { useSoulStore } from "@/hooks/useSoulStores";
+import { useTTS } from "@/hooks/useTTS";
 import { humanReadableDate, humanReadableSchedule } from "@/lib/humanDate";
 
 import DebugSoulHeader from "@/components/DebugSoulHeader";
@@ -119,6 +120,9 @@ const DebugChat: React.FC<{
     subroutineId,
     chatId
   );
+
+  // TTS handler - listens for dispatch events with action "tts"
+  const { isSpeaking, error: ttsError } = useTTS(events);
 
   const environmentVariables = Object.entries(metadata?.environment || {}).map(([k, v]) => ({
     key: k,
